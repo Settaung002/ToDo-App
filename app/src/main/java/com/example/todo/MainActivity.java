@@ -21,6 +21,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity  implements TaskAdapter.TaskActionListener{
 
+    // Member variable declarations
     private DBHelper dbHelper;
     private TaskAdapter adapter;
     private View emptyState;
@@ -39,33 +40,36 @@ public class MainActivity extends AppCompatActivity  implements TaskAdapter.Task
             return insets;
         });
 
-        // 1. Views များကို အရင် Bind လုပ်ပါ
+        // Initialize database helper and bind UI views
         dbHelper = new DBHelper(this);
         recyclerView = findViewById(R.id.recyclerViewTasks);
         emptyState = findViewById(R.id.emptyState);
         fabAddTask = findViewById(R.id.fabAddTask);
 
-        // 2. ရရှိလာသော RecyclerView ပေါ်တွင် Adapter နှင့် LayoutManager ထည့်ပါ
+        // Set up RecyclerView with LayoutManager and Adapter
         adapter = new TaskAdapter(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
+        // Navigate to AddEditTaskActivity when FAB is clicked
         fabAddTask.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AddEditTaskActivity.class);
             startActivity(intent);
         });
     }
 
+    // Reload task list whenever the activity resumes
     @Override
     protected void onResume() {
         super.onResume();
         loadTasks();
     }
 
+    // Fetch tasks from database and update adapter and empty state visibility
     private void loadTasks() {
         List<Task> tasks = dbHelper.getAllTasks();
         adapter.setTasks(tasks);
-
+        // Toggle visibility between task list and empty state view
         if (tasks.isEmpty()) {
             emptyState.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
@@ -75,6 +79,7 @@ public class MainActivity extends AppCompatActivity  implements TaskAdapter.Task
         }
     }
 
+    // Handle item click to open TaskDetailActivity
     @Override
     public void onTaskClick(Task task) {
         Intent intent = new Intent(this, TaskDetailActivity.class);
@@ -82,6 +87,7 @@ public class MainActivity extends AppCompatActivity  implements TaskAdapter.Task
         startActivity(intent);
     }
 
+    // Handle checkbox status toggle and update database
     @Override
     public void onStatusChanged(Task task, boolean isDone) {
         int status = isDone ? Task.STATUS_DONE : Task.STATUS_TODO;
@@ -89,6 +95,7 @@ public class MainActivity extends AppCompatActivity  implements TaskAdapter.Task
         loadTasks();
     }
 
+    // Handle edit button click to open AddEditTaskActivity
     @Override
     public void onEdit(Task task) {
         Intent intent = new Intent(this, AddEditTaskActivity.class);
@@ -96,6 +103,7 @@ public class MainActivity extends AppCompatActivity  implements TaskAdapter.Task
         startActivity(intent);
     }
 
+    // Show confirmation dialog before deleting a task
     @Override
     public void onDelete(Task task) {
         new AlertDialog.Builder(this)
